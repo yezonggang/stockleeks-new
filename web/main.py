@@ -15,6 +15,7 @@ import dataEditorHandler as dataEditorHandler
 import dataIndicatorsHandler as dataIndicatorsHandler
 import bargainHuntingHandler as bargainHuntingHandler
 import buyingPointHandler as buyingPointHandler
+import loginHandler as loginHandler
 import base as webBase
 import pandas as pd
 import numpy as np
@@ -23,6 +24,8 @@ import bokeh as bh
 from tornado.options import define, options
 import sys
 from os.path import dirname,abspath
+
+from web.loginHandler import LoginHandler
 project_path = dirname(dirname(abspath(__file__)))
 #__file__用于获取文件的路径，abspath(__file__)获得绝对路径；
 #dirname()用于获取上级目录，两个dirname（）相当于获取了当前文件的上级的上级即示例中project2
@@ -53,6 +56,9 @@ class Application(tornado.web.Application):
             # 使用datatable 展示报表数据模块。
             (r"/stock/api_data", dataTableHandler.GetStockDataHandler),
             (r"/stock/data", dataTableHandler.GetStockHtmlHandler),
+            (r"/stock/login", loginHandler.LoginHandler),
+            (r"/stock/login_info", loginHandler.LoginInfoHandler),
+            (r"/stock/logout", loginHandler.LogoutHandler),
             # 数据修改dataEditor。
             (r"/data/editor", dataEditorHandler.GetEditorHtmlHandler),
             (r"/data/editor/save", dataEditorHandler.SaveEditorHandler),
@@ -166,7 +172,7 @@ def main():
     tornado.options.parse_command_line()
     # [i.setFormatter(LogFormatter()) for i in logging.getLogger().handlers]
     http_server = tornado.httpserver.HTTPServer(Application())
-    port = 9902
+    port = 9904
     http_server.listen(port)
     # tornado.options.options.logging = "debug"
     log_path = '/data/logs'

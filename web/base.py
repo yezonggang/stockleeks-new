@@ -15,6 +15,13 @@ import libs.stock_web_dic as stock_web_dic
 
 # 基础handler，主要负责检查mysql的数据库链接。
 class BaseHandler(tornado.web.RequestHandler):
+    def set_default_headers(self):
+        print("setting headers!!!")
+        self.set_header("Access-Control-Allow-Origin", "*")    # 这个地方可以写域名
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        self.set_header("Access-Control-Max-Age", 1000)
+        self.set_header("Content-type", "application/json")
     @property
     def db(self):
         try:

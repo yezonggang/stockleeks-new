@@ -28,7 +28,7 @@ from chinese_calendar import is_workday
 # 使用环境变量获得数据库。兼容开发模式可docker模式。
 MYSQL_HOST = os.environ.get('MYSQL_HOST') if (os.environ.get('MYSQL_HOST') != None) else "39.103.218.1"
 MYSQL_USER = os.environ.get('MYSQL_USER') if (os.environ.get('MYSQL_USER') != None) else "root"
-MYSQL_PWD = os.environ.get('MYSQL_PWD') if (os.environ.get('MYSQL_PWD') != None) else "admin@123"
+MYSQL_PWD = os.environ.get('MYSQL_PWD') if (os.environ.get('MYSQL_PWD') != None) else "123456"
 MYSQL_DB = os.environ.get('MYSQL_DB') if (os.environ.get('MYSQL_DB') != None) else "stock_data_dev"
 
 print("MYSQL_HOST :", MYSQL_HOST, ",MYSQL_USER :", MYSQL_USER, ",MYSQL_DB :", MYSQL_DB)
@@ -178,6 +178,7 @@ def run_with_args(run_fun):
         tmp_year, tmp_month, tmp_day = sys.argv[1].split("-")
         tmp_datetime = datetime.datetime(int(tmp_year), int(tmp_month), int(tmp_day))
         try:
+            print("================tmp_datetime"+ tmp_datetime)
             run_fun(tmp_datetime)
         except Exception as e:
             print("error :", e)
