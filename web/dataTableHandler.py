@@ -18,23 +18,6 @@ import libs.common as common
 import libs.stock_web_dic as stock_web_dic
 import web.base as webBase
 
-
-# info 蓝色 云财经
-# success 绿色
-#  danger 红色 东方财富
-#  warning 黄色
-WEB_EASTMONEY_URL = u"""
-    <a class='btn btn-danger btn-xs tooltip-danger' data-rel="tooltip" data-placement="right" data-original-title="东方财富，股票详细地址，新窗口跳转。"
-    href='http://quote.eastmoney.com/%s.html' target='_blank'>东财</a>
-
-    <a class='btn btn-success btn-xs tooltip-success' data-rel="tooltip" data-placement="right" data-original-title="本地MACD，KDJ等指标，本地弹窗窗口，数据加载中，请稍候。"
-    onclick="showIndicatorsWindow('%s');">指标</a>
-
-    <a class='btn btn-warning btn-xs tooltip-warning' data-rel="tooltip" data-placement="right" data-original-title="东方财富，研报地址，本地弹窗窗口。"
-    onclick="showDFCFWindow('%s');">东研</a>
-
-
-    """
 # 和在dic中的字符串一致。字符串前面都不特别声明是u""
 eastmoney_name = "查看股票"
 
@@ -80,8 +63,11 @@ class GetStockDataHandler(webBase.BaseHandler):
         print("get start")
 
         # 获得分页参数。
-        page_param = self.get_argument("page", default=0, strip=False)
+        page_param = self.get_argument("page", default=1, strip=False)
         limit_param = self.get_argument("limit", default=10, strip=False)
+        page_param_int=int(page_param)
+        limit_param_int=int(limit_param)
+        limit_param_sql=' limit %s,%s '%((page_param_int-1)*limit_param_int,page_param_int*limit_param_int)
         print("page param:", page_param, limit_param)
 
         name_param = self.get_argument("name", default=None, strip=False)
@@ -103,17 +89,37 @@ class GetStockDataHandler(webBase.BaseHandler):
                 where_sql="where code= %s and name= %s" %(code_param,name_param)
         if((name_param==None or name_param=='') and (code_param==None or code_param=='')):
             where_sql=" "
-        search_sql ="select code,name,latest_price,quote_change,ups_downs,volume,turnover,amplitude,high,low,open,closed,quantity_ratio,turnover_rate,pe_dynamic,pb from stock_data_dev.guess_indicators_daily "
-        limit_sql = " limit %s ; " %(limit_param);
+        search_sql ="select date,code,name,latest_price,quote_change,ups_downs,volume,turnover,amplitude,high,low,open,closed,quantity_ratio,turnover_rate,pe_dynamic,pb from stock_data_dev.guess_indicators_daily "
 
-        sql = search_sql+where_sql+order_by_sql+limit_sql;
+        sql = search_sql+where_sql+order_by_sql+limit_param_sql;
 
         logging.info("select sql : " + sql)
         stock_web_list = self.db.query(sql)
+        
 
+        for tmp_obj in (stock_web_list):
+            try:
+                code_tmp = tmp_obj["code"]
+                # 判断上海还是 深圳，东方财富 接口要求。
+                if code_tmp.startswith("6"):
+                    code_tmp = "SH" + code_tmp
+                else:
+                    code_tmp = "SZ" + code_tmp
+                dongcai_URL='http://quote.eastmoney.com/%s.html'%(code_tmp)
+                zhibiao_URL='/data/indicators?code='+code_tmp
+                dongyan_URL='https://emweb.eastmoney.com/PC_HSF10/ShareholderResearch/Index?type=soft&code=%s'%(code_tmp)                
+                tmp_obj["dongcai_URL"] = dongcai_URL
+                tmp_obj["zhibiao_URL"] = zhibiao_URL
+                tmp_obj["dongyan_URL"] = dongyan_URL
+            except Exception as e:
+                print("error :", e)
+                        
+        stock_web_list_all_sql="select count(*) from stock_data_dev.guess_indicators_daily;"
+        stock_web_list_all= self.db.query(stock_web_list_all_sql)[0]['count(*)']
+        logging.info("select stock_web_list_all : " + str(stock_web_list_all))
         obj = {
         "code":20000,
-        "data": {"draw": 0,"items": stock_web_list,"recordsTotal":len(stock_web_list)}
+        "data": {"draw": 0,"items": stock_web_list,"recordsTotal":stock_web_list_all}
         }
 
         logging.info("get data####################")

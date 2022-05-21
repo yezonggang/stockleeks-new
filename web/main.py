@@ -31,7 +31,7 @@ project_path = dirname(dirname(abspath(__file__)))
 #dirname()用于获取上级目录，两个dirname（）相当于获取了当前文件的上级的上级即示例中project2
 sys.path.append(project_path)
 import libs.common as common
-import libs.stock_web_dic
+
 
 
 define('port', default=8888, help='run on the given port', type=int)
