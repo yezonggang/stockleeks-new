@@ -22,7 +22,6 @@ project_path = dirname(dirname(abspath(__file__)))
 #__file__用于获取文件的路径，abspath(__file__)获得绝对路径；
 #dirname()用于获取上级目录，两个dirname（）相当于获取了当前文件的上级的上级即示例中project2
 sys.path.append(project_path)
-import libs.stock_em_hist as ak_em_hist
 from chinese_calendar import is_workday
 
 # 使用环境变量获得数据库。兼容开发模式可docker模式。
@@ -205,34 +204,3 @@ if not os.path.exists(bash_stock_tmp):
     print("######################### init tmp dir #########################")
 
 
-# 增加读取股票缓存方法。加快处理速度。
-def get_hist_data_cache(code, date_start, date_end):
-    cache_dir = bash_stock_tmp % (date_end[0:7], date_end)
-    # 如果没有文件夹创建一个。月文件夹和日文件夹。方便删除。
-    print("time: ", datetime.datetime.now())
-    print("cache_dir:", cache_dir)
-    if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
-    cache_file = cache_dir + "%s^%s.gzip.pickle" % (date_end, code)
-    print("cache_file:", cache_file)
-    # 如果缓存存在就直接返回缓存数据。压缩方式。
-    try:
-        if os.path.isfile(cache_file):
-            print("######### read from cache #########", cache_file)
-            return pd.read_pickle(cache_file, compression="gzip")
-        else:
-            print("######### get data, write cache #########", code, date_start, date_end)
-            # stock = ak.stock_zh_a_hist(symbol=code, start_date=date_start, end_date=date_end, adjust="")
-            stock = ak_em_hist.stock_zh_a_hist(symbol=code, start_date=date_start, end_date=date_end, adjust="")
-            stock.columns = ['date', 'open', 'close', 'high', 'low', 'volume', 'amount', 'amplitude', 'quote_change',
-                             'ups_downs', 'turnover']
-            if stock is None:
-                return None
-
-            stock = stock.sort_index(0)  # 将数据按照日期排序下。
-            stock.to_pickle(cache_file, compression="gzip")
-
-            return stock
-    except Exception as e:
-        print("get_hist_data_cache error:", e)
-        traceback.print_exc()

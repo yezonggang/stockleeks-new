@@ -15,46 +15,10 @@ project_path = dirname(dirname(abspath(__file__)))
 #dirname()用于获取上级目录，两个dirname（）相当于获取了当前文件的上级的上级即示例中project2
 sys.path.append(project_path)
 import libs.common as common
-import libs.stock_web_dic as stock_web_dic
 import web.base as webBase
 
 # 和在dic中的字符串一致。字符串前面都不特别声明是u""
 eastmoney_name = "查看股票"
-
-
-# 获得页面数据。
-class GetStockHtmlHandler(webBase.BaseHandler):
-    @gen.coroutine
-    def get(self):
-        name = self.get_argument("table_name", default=None, strip=False)
-        print("table name:", name)
-        stockWeb = stock_web_dic.STOCK_WEB_DATA_MAP[name]
-        # self.uri_ = ("self.request.url:", self.request.uri)
-        # print self.uri_
-        date_now = datetime.datetime.now()
-        date_now_str = date_now.strftime("%Y%m%d")
-        # 每天的 16 点前显示昨天数据。
-        if date_now.hour < 16:
-            date_now_str = (date_now + datetime.timedelta(days=-1)).strftime("%Y%m%d")
-
-        try:
-            # 增加columns 字段中的【查看股票 东方财富】
-            logging.info(eastmoney_name in stockWeb.column_names)
-            if eastmoney_name in stockWeb.column_names:
-                tmp_idx = stockWeb.column_names.index(eastmoney_name)
-                logging.info(tmp_idx)
-                try:
-                    # 防止重复插入数据。可能会报错。
-                    stockWeb.columns.remove("eastmoney_url")
-                except Exception as e:
-                    print("error :", e)
-                stockWeb.columns.insert(tmp_idx, "eastmoney_url")
-        except Exception as e:
-            print("error :", e)
-        logging.info("####################GetStockHtmlHandlerEnd")
-        self.render("stock_web.html", stockWeb=stockWeb, date_now=date_now_str,
-                    pythonStockVersion=common.__version__,
-                    leftMenu=webBase.GetLeftMenu(self.request.uri))
 
 
 # 获得股票数据内容。

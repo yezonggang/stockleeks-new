@@ -11,10 +11,6 @@ import tornado.ioloop
 import tornado.options
 from tornado.log import access_log
 import dataTableHandler as dataTableHandler
-import dataEditorHandler as dataEditorHandler
-import dataIndicatorsHandler as dataIndicatorsHandler
-import bargainHuntingHandler as bargainHuntingHandler
-import buyingPointHandler as buyingPointHandler
 import loginHandler as loginHandler
 import base as webBase
 import pandas as pd
@@ -42,28 +38,13 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             # 设置路由
-            (r"/", HomeHandler),
-            (r"/test", TestHandler),  # 测试页面，做写js 测试。
-            (r"/stock/", HomeHandler),
-            (r"/test_akshare", TestHandler),  # 测试页面，做写js 测试。
-            # (r"/test2", Test2Handler),  # 测试页面，做写js 测试。
-            # bargain hunting
-            (r"/stock/bargain/hunting", bargainHuntingHandler.GetBargainHuntingHtmlHandler),
-            (r"/stock/bargain/hunting/api_data", bargainHuntingHandler.GetBargainHuntingDataHandler),
-            # buying point
-            (r"/stock/buying/point", buyingPointHandler.GetBuyingPointHtmlHandler),
-            (r"/stock/buying/point/api_data", buyingPointHandler.GetBuyingPointDataHandler),
             # 使用datatable 展示报表数据模块。
             (r"/stock/api_data", dataTableHandler.GetStockDataHandler),
-            (r"/stock/data", dataTableHandler.GetStockHtmlHandler),
             (r"/stock/login", loginHandler.LoginHandler),
             (r"/stock/login_info", loginHandler.LoginInfoHandler),
             (r"/stock/logout", loginHandler.LogoutHandler),
             # 数据修改dataEditor。
-            (r"/data/editor", dataEditorHandler.GetEditorHtmlHandler),
-            (r"/data/editor/save", dataEditorHandler.SaveEditorHandler),
             # 获得股票指标数据。
-            (r"/stock/data/indicators", dataIndicatorsHandler.GetDataIndicatorsHandler),
         ]
 
         # 配置
