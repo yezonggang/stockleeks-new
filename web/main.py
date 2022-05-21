@@ -128,26 +128,6 @@ class HomeHandler(webBase.BaseHandler):
                     leftMenu=webBase.GetLeftMenu(self.request.uri))
 
 
-class TestHandler(webBase.BaseHandler):
-    @gen.coroutine
-    def get(self):
-        self.render("test_akshare.html", entries="hello",
-                    pythonStockVersion=common.__version__,
-                    leftMenu=webBase.GetLeftMenu(self.request.uri))
-
-
-class Test2Handler(webBase.BaseHandler):
-    @gen.coroutine
-    def get(self):
-        name = self.get_argument("table_name", default=None, strip=False)
-        print("table name:", name)
-        stockWeb = stock_web_dic.STOCK_WEB_DATA_MAP[name]
-
-        self.render("stock_livemore_guess.html", entries="hello",
-                    stockWeb=stockWeb,
-                    pythonStockVersion=common.__version__,
-                    leftMenu=webBase.GetLeftMenu(self.request.uri))
-
 
 def main():
     tornado.options.parse_command_line()
